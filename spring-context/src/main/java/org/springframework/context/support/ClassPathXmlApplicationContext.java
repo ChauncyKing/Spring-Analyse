@@ -140,6 +140,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 
 		super(parent);
 		setConfigLocations(configLocations);
+		// 是否自动刷新 - 加载所有的 bean definitions 并创建所有单例的 bean
 		if (refresh) {
 			refresh();
 		}
