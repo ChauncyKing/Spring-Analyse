@@ -526,31 +526,39 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				// 设置 BeanFactory 的 后置处理器
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
+				// 设置 BeanFactory 的 后置处理器
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				// 注册 Bean 的 后置处理器 ，在 Bean 创建过程中调用
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
+				// 对上下文中的消息源进行初始化
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				// 初始化上下文中的事件机制
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
+				// 初始化其他的特殊 Bean
 				onRefresh();
 
 				// Check for listener beans and register them.
+				// 检查 监听 Bean 并且将这些 Bean 向容器注册
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
-				// 实例化所有非懒加载的单例 bean
+				// 实例化所有 非懒加载的 单例 bean
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
+				// 发布容器事件 ，结束 refresh 过程
 				finishRefresh();
 			}
 
@@ -561,6 +569,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				}
 
 				// Destroy already created singletons to avoid dangling resources.
+				// 为防止 Bean 占用资源 ，在异常处理中，销毁之前已经创建好的 单例 bean
 				destroyBeans();
 
 				// Reset 'active' flag.

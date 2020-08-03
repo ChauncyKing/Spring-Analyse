@@ -263,7 +263,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 			// sharedInstance != null && args == null
 			// sharedInstance 如果是 (普通的 bean 或  factoryBean 本身 ) 直接返回
-			// sharedInstance 如果是 factoryBean 则需要调用 getObject() 工厂方法获取 bean 实例
+			// sharedInstance 如果是 factoryBean 则需要调用 getObject() 工厂方法获取 bean 实例，获取 factoryBean 的生产结果
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -277,6 +277,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 
 			// Not found -> check parent.
+			// 检查是否能在当前的 BeanFactory 中获取到需要的 Bean, 获取不到则从其父容器中查找
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				String nameToLookup = originalBeanName(name);
 
@@ -303,12 +304,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
-				// 合并父 BeanDefinition 与子 BeanDefinition
+				// 获取 BeanDefinition (合并父 BeanDefinition 与子 BeanDefinition )
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
-				// 先初始化 DependsOn 依赖
+				// 先初始化当前 Bean 所依赖的 所有 Bean , 会触发 getBean 的递归调用
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
@@ -328,7 +329,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Create bean instance.
-				// 创建单例的 bean , 从对象工厂中获取
+				// 创建单例的 bean , 调用 ObjectFactory.getObject() 创建
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						// ObjectFactory<?> 的 匿名内部类 实现
@@ -394,6 +395,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		// Check if required type matches the type of the actual bean instance.
+		// 对创建好的 bean 进行类型检查，如果没有问题，就返回这个新创建的 bean (装配好的 bean)
 		if (requiredType != null && !requiredType.isInstance(bean)) {
 			try {
 				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);

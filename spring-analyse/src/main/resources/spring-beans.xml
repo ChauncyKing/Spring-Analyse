@@ -7,6 +7,8 @@
 		<property name="egg" ref="egg"></property>
 	</bean>
 
-	<bean name="egg" class="beans.Egg"></bean>
+	<bean name="egg" class="beans.Egg">
+		<property name="chicken" ref="chicken"></property>
+	</bean>
 
 </beans>
