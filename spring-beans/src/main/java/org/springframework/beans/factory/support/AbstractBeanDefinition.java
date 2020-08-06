@@ -170,6 +170,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private String factoryBeanName;
 
+	// 工厂方法
 	@Nullable
 	private String factoryMethodName;
 
@@ -963,6 +964,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * not defined by the application itself.
 	 */
 	public boolean isSynthetic() {
+		// 是否是合成的
 		return this.synthetic;
 	}
 
