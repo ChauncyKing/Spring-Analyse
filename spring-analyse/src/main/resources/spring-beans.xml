@@ -11,4 +11,7 @@
 		<property name="chicken" ref="chicken"></property>
 	</bean>
 
+	<bean name="eggFactory" class="beans.EggFactory">
+	</bean>
+
 </beans>
