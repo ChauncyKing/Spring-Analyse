@@ -102,9 +102,11 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/** 增强配置 */
 	@Nullable
 	private String[] interceptorNames;
 
+	/** 目标类的 beanName */
 	@Nullable
 	private String targetName;
 
@@ -125,9 +127,11 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	private transient BeanFactory beanFactory;
 
 	/** Whether the advisor chain has already been initialized. */
+	/** 增强拦截链 是否已经初始化完成 */
 	private boolean advisorChainInitialized = false;
 
 	/** If this is a singleton, the cached singleton proxy instance. */
+	/** 单例代理对象缓存 */
 	@Nullable
 	private Object singletonInstance;
 
@@ -249,10 +253,13 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	@Override
 	@Nullable
 	public Object getObject() throws BeansException {
+		// 初始化增强拦截链
 		initializeAdvisorChain();
+		// 处理 singleton 类型
 		if (isSingleton()) {
 			return getSingletonInstance();
 		}
+		// 处理 prototype 类型
 		else {
 			if (this.targetName == null) {
 				logger.info("Using non-singleton proxies with singleton targets is often undesirable. " +
@@ -314,19 +321,26 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * lazily creating it if it hasn't been created already.
 	 * @return the shared singleton proxy
 	 */
+	// 生成单例代理对象
 	private synchronized Object getSingletonInstance() {
 		if (this.singletonInstance == null) {
+			// 获取目标类实例
 			this.targetSource = freshTargetSource();
+
+			// 是否代理接口
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
 				Class<?> targetClass = getTargetClass();
 				if (targetClass == null) {
 					throw new FactoryBeanNotInitializedException("Cannot determine target class for proxy");
 				}
+				// 设置要代理的接口
 				setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass, this.proxyClassLoader));
 			}
+
 			// Initialize the shared singleton instance.
 			super.setFrozen(this.freezeProxy);
+			// 通过 createAopProxy 返回的 AopProxy (具体的代理方式) 来得到代理对象
 			this.singletonInstance = getProxy(createAopProxy());
 		}
 		return this.singletonInstance;
@@ -375,6 +389,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * @see AopProxy#getProxy(ClassLoader)
 	 */
 	protected Object getProxy(AopProxy aopProxy) {
+		// AopProxy 是一个接口 。 有两种实现方式 : CglibAopProxy 和 JdkDynamicAopProxy
 		return aopProxy.getProxy(this.proxyClassLoader);
 	}
 
@@ -431,6 +446,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * are unaffected by such changes.
 	 */
 	private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException {
+		// 增强拦截链 是否已经初始化完成
 		if (this.advisorChainInitialized) {
 			return;
 		}
@@ -448,6 +464,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 			}
 
 			// Materialize interceptor chain from bean names.
+			// 初始化配置的所有增强
 			for (String name : this.interceptorNames) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Configuring advisor or advice '" + name + "'");
@@ -468,6 +485,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 					Object advice;
 					if (this.singleton || this.beanFactory.isSingleton(name)) {
 						// Add the real Advisor/Advice to the chain.
+						// 从容器中获取增强
 						advice = this.beanFactory.getBean(name);
 					}
 					else {
@@ -475,6 +493,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 						// Avoid unnecessary creation of prototype bean just for advisor chain initialization.
 						advice = new PrototypePlaceholderAdvisor(name);
 					}
+					// 将增强加入到增强链中
 					addAdvisorOnChainCreation(advice, name);
 				}
 			}

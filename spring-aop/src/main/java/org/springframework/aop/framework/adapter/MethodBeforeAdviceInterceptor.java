@@ -52,7 +52,9 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, BeforeA
 
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// 执行前置增强
 		this.advice.before(mi.getMethod(), mi.getArguments(), mi.getThis());
+		// 执行下一个 proceed() 方法
 		return mi.proceed();
 	}
 

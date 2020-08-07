@@ -11,7 +11,30 @@
 		<property name="chicken" ref="chicken"></property>
 	</bean>
 
-	<bean name="eggFactory" class="beans.EggFactory">
+	<bean name="eggFactory" class="beans.EggFactory"/>
+
+	<!--前置增强-->
+	<bean name="logTimeBeforeAdvice" class="aop.LogTimeBeforeAdvice"/>
+	<!--后置增强-->
+	<bean name="logTimeAfterAdvice" class="aop.LogTimeAfterAdvice"/>
+
+	<!--目标类-->
+	<bean name="fileRecorderTarget" class="aop.FileRecorder"/>
+
+	<!--代理工厂 -->
+	<bean name="fileRecorder" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<!--被代理的类 (目标类)-->
+		<property name="target" ref="fileRecorderTarget"/>
+		<!--指定代理的接口，可以配置多个，使用 JDK 动态代理时配置，使用 CGLIB 代理时，该配置会被忽略-->
+		<property name="proxyInterfaces" value="aop.Recorder"/>
+		<!--增强逻辑，多个增强用逗号分隔-->
+		<property name="interceptorNames" value="logTimeBeforeAdvice,logTimeAfterAdvice"/>
+		<!--是否对类进行代理，设置为 true 时，会使用 CGLIB 代理-->
+		<property name="proxyTargetClass" value="false"/>
+		<!--是否强制使用 CGLIB 代理 -->
+		<property name="optimize" value="true"/>
+		<!--是否暴露代理对象到 ThreadLocal 中-->
+		<property name="exposeProxy" value="false"/>
 	</bean>
 
 </beans>
