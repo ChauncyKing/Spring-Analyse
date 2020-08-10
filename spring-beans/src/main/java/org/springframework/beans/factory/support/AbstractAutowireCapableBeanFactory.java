@@ -595,6 +595,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
 
 		// earlySingletonExposure 表示是否将 raw bean 暴露到 singletonFactories 缓存中
+		// 单例 && 允许循环依赖 && 正在创建过程中
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
 				isSingletonCurrentlyInCreation(beanName));
 

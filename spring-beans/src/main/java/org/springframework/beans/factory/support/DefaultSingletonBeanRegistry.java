@@ -181,21 +181,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		// 先从一级缓存获取
 		Object singletonObject = this.singletonObjects.get(beanName);
-		// 一级缓存中没有 && 但是在创建过程中
+		// 一级缓存中没有 && 但是在创建过程中 (在创建过程中可以理解 依赖注入未完成 )
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
 				// 从二级缓存中获取 raw bean
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				// 二级缓存也没有 && 允许早期引用
 				if (singletonObject == null && allowEarlyReference) {
-					// 获取对应的工厂类
+					// 获取 beanName 对应的工厂类
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
-						// 从工厂类中获取 raw bean (此处获取的是非完整的 bean)
+						// 从工厂中获取
 						singletonObject = singletonFactory.getObject();
 						// 放入二级缓存
 						this.earlySingletonObjects.put(beanName, singletonObject);
-						// 放入二级缓存后，移除三级缓存中 bean
+						// 移除工厂
 						this.singletonFactories.remove(beanName);
 					}
 				}
