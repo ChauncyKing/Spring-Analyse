@@ -485,7 +485,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 					Object advice;
 					if (this.singleton || this.beanFactory.isSingleton(name)) {
 						// Add the real Advisor/Advice to the chain.
-						// 从容器中获取增强
+						// 从容器中 获取 增强的 advice
 						advice = this.beanFactory.getBean(name);
 					}
 					else {
