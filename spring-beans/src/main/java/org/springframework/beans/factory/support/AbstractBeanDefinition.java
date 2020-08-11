@@ -62,12 +62,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * Constant for the default scope name: {@code ""}, equivalent to singleton
 	 * status unless overridden from a parent bean definition (if applicable).
 	 */
+	/** 默认 scope 的常量名 */
 	public static final String SCOPE_DEFAULT = "";
 
 	/**
 	 * Constant that indicates no external autowiring at all.
 	 * @see #setAutowireMode
 	 */
+	/** 不使用自动装配 */
 	public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
 
 	/**
@@ -86,6 +88,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * Constant that indicates autowiring a constructor.
 	 * @see #setAutowireMode
 	 */
+	/** 使用构造函数自动装配 */
 	public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 
 	/**
@@ -136,7 +139,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	public static final String INFER_METHOD = "(inferred)";
 
-
+	/** bean 对象 */
 	@Nullable
 	private volatile Object beanClass;
 
@@ -170,13 +173,13 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private String factoryBeanName;
 
-	// 工厂方法
 	@Nullable
 	private String factoryMethodName;
 
 	@Nullable
 	private ConstructorArgumentValues constructorArgumentValues;
 
+	/** 待依赖注入的属性 */
 	@Nullable
 	private MutablePropertyValues propertyValues;
 

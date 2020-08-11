@@ -263,9 +263,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-			// sharedInstance != null && args == null
-			// sharedInstance 如果是 (普通的 bean 或  factoryBean 本身 ) 直接返回
-			// sharedInstance 如果是 factoryBean 则需要调用 getObject() 工厂方法获取 bean 实例，获取 factoryBean 的生产结果
+			// 只有当 bean 是 FactoryBean ，且 name 没有 & 前缀 ，才会通过 factoryBean # getObject 创建实例并返回
+			// 即 普通的 bean 和 获取 FactoryBean 本身 ，都直接返回
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -1292,6 +1291,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
+						// 包装
 						mbd = new RootBeanDefinition(bd);
 					}
 				}
@@ -1676,12 +1676,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
-		// name 以 & 开头
+		// 如果 name 以 & 开头
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
 			}
-			// 以 & 开头 ( 工厂 bean ) 的必须是 FactoryBean
+			// name 以 & 开头 ，beanInstance 必须是 FactoryBean , 否则抛出异常
 			if (!(beanInstance instanceof FactoryBean)) {
 				throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
 			}
@@ -1690,13 +1690,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
-		// 如果不是 FactoryBean 直接返回
-		// 如果 name 是以 & 开头 ，也直接返回 ( 虽然此时的 bean 有可能是 FactoryBean )
+
+		// 如果 beanInstance 不是 FactoryBean ，则直接返回
+		// 如果 name 是以 & 开头 ，也直接返回
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
-		// 只有当 bean 是 FactoryBean ，且 name 不是以 & 开头 ，才通过 getObject 返回
+		// 因此 : 只有当 bean 是 FactoryBean ，且 name 没有 & 前缀 ，才会通过 factoryBean # getObject 创建实例并返回
 		Object object = null;
 		if (mbd == null) {
 			// factoryBeanObjectCache 缓存的是 factoryBean # getObject 返回的实例
