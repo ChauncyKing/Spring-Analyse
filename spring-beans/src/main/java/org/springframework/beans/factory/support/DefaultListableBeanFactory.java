@@ -828,9 +828,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 				// FactoryBean 的 初始化
 				if (isFactoryBean(beanName)) {
+					// 关键点 ：ApplicationContext 初始化的时候 会先初始化 FactoryBean
+					// 只有 isEagerInit 为 true ，才会通过 FactoryBean # getObject 来返回实例
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
+
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
+						// 是否配置
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
@@ -842,6 +846,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
 						if (isEagerInit) {
+							// 会使用 FactoryBean # getObject 来返回实例
 							getBean(beanName);
 						}
 					}
