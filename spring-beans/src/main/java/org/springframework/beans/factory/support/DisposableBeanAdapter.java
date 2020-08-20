@@ -381,6 +381,7 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 	 * @param beanDefinition the corresponding bean definition
 	 */
 	public static boolean hasDestroyMethod(Object bean, RootBeanDefinition beanDefinition) {
+
 		if (bean instanceof DisposableBean || bean instanceof AutoCloseable) {
 			return true;
 		}

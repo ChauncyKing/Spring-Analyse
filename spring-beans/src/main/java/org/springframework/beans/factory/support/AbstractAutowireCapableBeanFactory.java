@@ -558,11 +558,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throws BeanCreationException {
 
 		// Instantiate the bean.
-		// 通过 BeanWrapper 的实现类可以方便的 设置/获取 bean 实例的属性
-		// 这个 BeanWrapper 是用来 持有 创建出来的 bean 对象的
+		// bean 的包装类
 		BeanWrapper instanceWrapper = null;
 		if (mbd.isSingleton()) {
-			// 如果是单例的 bean , 先把缓存中同名的 bean 删除
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		// 缓存中不存在
@@ -582,12 +580,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
+					// apply MergedBeanDefinitionPostProcessor # post-processors to modify the mbd
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
 					throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 							"Post-processing of merged bean definition failed", ex);
 				}
+				// mbd 是否被处理
 				mbd.postProcessed = true;
 			}
 		}
@@ -595,7 +595,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Eagerly cache singletons to be able to resolve circular references
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
 
-		// earlySingletonExposure 表示是否将 raw bean 暴露到 singletonFactories 缓存中
+		// earlySingletonExposure 表示是否将 raw bean 暴露到 singletonFactories 缓存中，以支持循环依赖
 		// 单例 && 允许循环依赖 && 正在创建过程中
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
 				isSingletonCurrentlyInCreation(beanName));
@@ -631,7 +631,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (earlySingletonExposure) {
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
-				//
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}
@@ -658,7 +657,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Register bean as disposable.
 		try {
-			// 注册销毁逻辑
+			// 将 bean 注册为一个 disposable 【非原型 bean && ( hasDestroyMethod || has DestructionAwareBeanPostProcessors ) 】
 			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		}
 		catch (BeanDefinitionValidationException ex) {
@@ -971,6 +970,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object exposedObject = bean;
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				// SmartInstantiationAwareBeanPostProcessor # getEarlyBeanReference
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
 					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
