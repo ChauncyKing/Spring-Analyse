@@ -4,7 +4,7 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--Bean 的生命周期-->
-	<bean name="life" class="beans.Life" init-method="init">
+	<bean name="life" class="beans.Life" init-method="init" destroy-method="destroy">
 	</bean>
 
 	<bean name="myBeanPostProcessor" class="beans.MyBeanPostProcessor"></bean>

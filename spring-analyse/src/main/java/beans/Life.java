@@ -18,4 +18,9 @@ public class Life implements BeanNameAware, InitializingBean {
 	public void init() throws Exception {
 		System.out.println("init()");
 	}
+
+	public void destroy() throws Exception {
+		System.out.println("destroy()");
+	}
+
 }

@@ -1192,7 +1192,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			return obtainFromSupplier(instanceSupplier, beanName);
 		}
 
-		// 创建方式 1 : 使用工厂方法对 bean 进行实例化
 		if (mbd.getFactoryMethodName() != null) {
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
@@ -1210,11 +1209,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		if (resolved) {
 			if (autowireNecessary) {
-				// 通过构造方法自动注入的方式 创建
 				return autowireConstructor(beanName, mbd, null, null);
 			}
 			else {
-				// 通过默认的构造方法创建
 				return instantiateBean(beanName, mbd);
 			}
 		}
@@ -1228,12 +1225,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Preferred constructors for default construction?
+		// 首选的构造函数
 		ctors = mbd.getPreferredConstructors();
 		if (ctors != null) {
 			return autowireConstructor(beanName, mbd, ctors, null);
 		}
 		// No special handling: simply use no-arg constructor.
-		// 使用默认的构造函数对 bean 进行实例化
+		// 无需特殊处理 : 使用无参的构造函数
 		return instantiateBean(beanName, mbd);
 	}
 
@@ -1304,8 +1302,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		if (beanClass != null && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+					// 确定候选的构造函数
 					Constructor<?>[] ctors = ibp.determineCandidateConstructors(beanClass, beanName);
 					if (ctors != null) {
 						return ctors;
@@ -1332,8 +1332,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						getAccessControlContext());
 			}
 			else {
-				// 使用默认的实例化策略（ CGLIB ）对 bean 进行实例化
-				// CGLIB 是一个常用的字节码生成器的类库，提供了一系列 API 来生成和转换 Java 的字节码
+				// 使用实例化策略 CglibSubclassingInstantiationStrategy 来实例化
 				beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
 			}
 			BeanWrapper bw = new BeanWrapperImpl(beanInstance);
