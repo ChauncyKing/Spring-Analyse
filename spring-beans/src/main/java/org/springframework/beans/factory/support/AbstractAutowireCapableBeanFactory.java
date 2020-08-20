@@ -508,12 +508,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// 给 BeanPostProcessors 一个返回代理实例 而不是 目标 bean 实例的机会
-			// 如果 Bean 配置了 PostProcessor ，那么这里返回的是一个 proxy
-			// 应用 InstantiationAwareBeanPostProcessor # postProcessBeforeInstantiation
+			// 应用 InstantiationAwareBeanPostProcessor
+			// 判断是否需要在实例化前解析
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
-				// 直接返回 proxy
+				// bean 被 InstantiationAwareBeanPostProcessor 替换
 				return bean;
 			}
 		}
@@ -1118,8 +1117,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Nullable
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
+		// 是否在实例化前被处理
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
+			// InstantiationAwareBeanPostProcessor 是否存在
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
@@ -1127,11 +1128,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 
 					if (bean != null) {
-						// 应用 BeanPostProcessor # postProcessAfterInitialization
+						// 应用 BeanPostProcessor # postProcessAfterInitialization ( 和上面的有区别 )
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
 				}
 			}
+			// 是否在实例化前被处理
 			mbd.beforeInstantiationResolved = (bean != null);
 		}
 		return bean;
